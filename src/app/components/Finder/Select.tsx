@@ -14,7 +14,7 @@ export default function CardSelect({
 }) {
   return (
     <Select onValueChange={(value) => setLanguage(value)}>
-      <SelectTrigger className='w-[300px]'>
+      <SelectTrigger className='min-w-[300px] w-full'>
         <SelectValue placeholder='Select a Language' />
       </SelectTrigger>
       <SelectContent>

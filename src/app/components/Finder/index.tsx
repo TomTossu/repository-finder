@@ -1,33 +1,47 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Select from './Select.tsx';
 import Card from './Card.tsx';
 import Header from './Header.tsx';
 
 const Finder = () => {
   const [language, setLanguage] = useState('');
-  const [repository, setRepository] = useState([]);
+  const [repository, setRepository] = useState(null);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!language) return;
 
-    const fetchData = async () => {
+    try {
       const data = await fetch(
-        `https://api.github.com/search/repositories?q=${language}&per_page=1`
+        `https://api.github.com/search/repositories?q=${language}`
       ).then((res) => res.json());
 
-      setRepository(data);
-    };
-
-    fetchData();
+      const randomIndex = Math.floor(Math.random() * data.items.length);
+      setRepository(data.items[randomIndex]);
+      setError(false);
+    } catch (err) {
+      console.log('Error:', err);
+      setRepository(null);
+      setError(true);
+    }
   }, [language]);
 
+  useEffect(() => {
+    fetchData();
+  }, [language, fetchData]);
+
   return (
-    <div className='flex flex-col gap-4 mt-10'>
+    <div className='flex flex-col gap-4 mt-10 p-[20px]'>
       <Header />
       <Select setLanguage={setLanguage} />
-      <Card repository={repository} />
+      <Card
+        language={language}
+        repository={repository}
+        error={error}
+        onRefetch={fetchData}
+      />
     </div>
   );
 };
